@@ -12,8 +12,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _scanBarcode = 'Aguardando leitura ';
-  List<TextEditingController>? _controllers = [];
+  // String _scanBarcode = 'Aguardando leitura ';
+  List _scanBarcode = [];
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _scanBarcode = barcodeScanRes;
+      _scanBarcode.add(barcodeScanRes);
     });
   }
 
@@ -55,8 +55,6 @@ class _MyAppState extends State<MyApp> {
                 direction: Axis.vertical,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  ElevatedButton(
-                      onPressed: () => scanQR(), child: Text('Start QR scan')),
                   Card(
                     color: Colors.white,
                     child: Padding(
@@ -70,7 +68,10 @@ class _MyAppState extends State<MyApp> {
                         enabled: false,
                       ),
                     ),
-                  )
+                  ),
+                  ElevatedButton(
+                      onPressed: () => scanQR(),
+                      child: Icon(Icons.search_sharp)),
                   // Text('Scan result : $_scanBarcode\n',
                   //     style: TextStyle(fontSize: 20))
                 ],
