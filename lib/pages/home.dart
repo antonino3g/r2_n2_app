@@ -13,7 +13,7 @@ class Home extends StatefulWidget {
 class _Home extends State<Home> {
   final formKey = GlobalKey<FormState>();
 
-  String tecnicoID = '';
+  int tecnicoID = 0;
   String tombo = '';
   String destino = '';
   String responsavel = '';
@@ -142,11 +142,6 @@ class _Home extends State<Home> {
             borderRadius: new BorderRadius.circular(15.0),
           ),
         ),
-        onChanged: (value) => setState(
-          () {
-            tecnicoID = value;
-          },
-        ),
         validator: (value) {
           if (value != null && value.length < 1) {
             return 'O ID deve conter no mín 1 caractere';
@@ -263,7 +258,7 @@ class _Home extends State<Home> {
 
   void sendToRobot() => {
         Api().createTtr(
-          tecnicoIdController.text.toString(),
+          int.parse(tecnicoIdController.text),
           tomboController.text.toString(),
           destinoController.text.toString(),
           responsavelController.text.toString(),
