@@ -240,21 +240,56 @@ class _Home extends State<Home> {
       );
 
   Widget buildSubmit() => ElevatedButton(
-        child: const Text('ENVIAR AO ROBÔ'),
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(15.0),
-          ),
+      child: const Text('ENVIAR AO ROBÔ'),
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: new BorderRadius.circular(15.0),
         ),
-        onPressed: () {
-          final isValidForm = formKey.currentState!.validate();
+      ),
+      onPressed: () {
+        showAlertDialog(context);
+      });
 
-          if (isValidForm) {
-            sendToRobot();
-          }
-        },
-      );
+  showAlertDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: Text("Cancelar"),
+      onPressed: () {
+        formKey.currentState!.validate();
+        Navigator.pop(context, 'Cancel');
+      },
+    );
+    Widget continueButton = TextButton(
+      child: Text("Enviar"),
+      onPressed: () {
+        Navigator.pop(context, 'OK');
+        final isValidForm = formKey.currentState!.validate();
+
+        if (isValidForm) {
+          sendToRobot();
+        }
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Enviar para o robô"),
+      content: Text("Gostaria de enviar esse pedido?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 
   void sendToRobot() => {
         Api().createTtr(
