@@ -248,10 +248,14 @@ class _Home extends State<Home> {
         ),
       ),
       onPressed: () {
-        showAlertDialog(context);
+        final isValidForm = formKey.currentState!.validate();
+
+        if (isValidForm) {
+          showAlertDialogInitial(context);
+        }
       });
 
-  showAlertDialog(BuildContext context) {
+  showAlertDialogInitial(BuildContext context) {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Text("Cancelar"),
@@ -264,11 +268,7 @@ class _Home extends State<Home> {
       child: Text("Enviar"),
       onPressed: () {
         Navigator.pop(context, 'OK');
-        final isValidForm = formKey.currentState!.validate();
-
-        if (isValidForm) {
-          sendToRobot();
-        }
+        showAlertSuccess(context);
       },
     );
 
@@ -291,8 +291,32 @@ class _Home extends State<Home> {
     );
   }
 
-  void sendToRobot() => {
-        Api().createTtr(
+  showAlertSuccess(BuildContext context) {
+    Widget sendPressed = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context, 'OK');
+        sendToRobot();
+      },
+    );
+
+    AlertDialog alertSuccess = AlertDialog(
+      content: Text("Pedido de TTR enviado com sucesso!"),
+      actions: [
+        sendPressed,
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alertSuccess;
+      },
+    );
+  }
+
+  Future sendToRobot() async => {
+        await Api().createTtr(
           int.parse(tecnicoIdController.text),
           tomboController.text.toString(),
           destinoController.text.toString(),

@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="br.com.antoninopraxedes.r2_n2">
+      <uses-permission android:name="android.permission.INTERNET"/> <!-- Add this -->
+
    <application
         android:label="r2_n2"
         android:name="${applicationName}"
