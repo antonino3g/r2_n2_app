@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -249,35 +250,30 @@ class _Home extends State<Home> {
       ),
       onPressed: () {
         final isValidForm = formKey.currentState!.validate();
+        debugPrint('Botão precionado');
 
         if (isValidForm) {
-          showAlertDialogInitial(context);
+          // showAlertDialogInitial(context);
+          debugPrint('Passou no Valid');
+          sendToRobot();
+        } else {
+          debugPrint('Não passou no Valid');
         }
       });
 
-  showAlertDialogInitial(BuildContext context) {
+  showAlertDialogSuccess(BuildContext context) {
     // set up the buttons
-    Widget cancelButton = TextButton(
-      child: Text("Cancelar"),
-      onPressed: () {
-        formKey.currentState!.validate();
-        Navigator.pop(context, 'Cancel');
-      },
-    );
     Widget continueButton = TextButton(
-      child: Text("Enviar"),
+      child: Text("OK"),
       onPressed: () {
         Navigator.pop(context, 'OK');
-        showAlertSuccess(context);
       },
     );
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Enviar para o robô"),
-      content: Text("Gostaria de enviar esse pedido?"),
+      content: Text("TTR enviada com sucesso!"),
       actions: [
-        cancelButton,
         continueButton,
       ],
     );
@@ -291,42 +287,59 @@ class _Home extends State<Home> {
     );
   }
 
-  showAlertSuccess(BuildContext context) {
-    Widget sendPressed = TextButton(
+  showAlertDialogFail(BuildContext context) {
+    // set up the buttons
+    Widget continueButton = TextButton(
       child: Text("OK"),
       onPressed: () {
         Navigator.pop(context, 'OK');
-        sendToRobot();
       },
     );
 
-    AlertDialog alertSuccess = AlertDialog(
-      content: Text("Pedido de TTR enviado com sucesso!"),
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      content: Text(
+          "Houve um erro de comunicação com o servidor. Tente novamente! :("),
       actions: [
-        sendPressed,
+        continueButton,
       ],
     );
 
+    // show the dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return alertSuccess;
+        return alert;
       },
     );
   }
 
-  Future sendToRobot() async => {
-        await Api().createTtr(
-          int.parse(tecnicoIdController.text),
-          tomboController.text.toString(),
-          destinoController.text.toString(),
-          responsavelController.text.toString(),
-          observacaoController.text.toString(),
-        ),
-        debugPrint('$tecnicoIdController.text'),
-        debugPrint('$tomboController.text'),
-        debugPrint('$destinoController.text'),
-        debugPrint('$responsavelController.text'),
-        debugPrint('$observacaoController.text'),
-      };
+  Future<void> sendToRobot() async {
+    try {
+      Response response = await Dio().post(
+        'http://10.50.16.93:3000/ttrs/create',
+        data: {
+          'n2_tecnico_id': int.parse(tecnicoIdController.text),
+          'tombo': tomboController.text.toString(),
+          'destino': destinoController.text.toString(),
+          'responsavel': responsavelController.text.toString(),
+          'observacao': observacaoController.text.toString(),
+        },
+      );
+      debugPrint('Enviou pra API');
+
+      if (response.statusCode != 201) {
+        showAlertDialogFail(context);
+        print(response);
+        debugPrint('Erro, sem conexão com a API');
+      } else {
+        debugPrint('Enviou p/ API');
+
+        showAlertDialogSuccess(context);
+        print(response);
+      }
+    } catch (e) {
+      debugPrint('Enviou post');
+    }
+  }
 }
